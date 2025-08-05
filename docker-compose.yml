@@ -1,0 +1,23 @@
+
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: tweet-api-postgres
+    environment:
+      # These credentials should match your application's config
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tweet_db
+    ports:
+      # Exposes the database on port 5432 of your local machine
+      - "5432:5432"
+    volumes:
+      # This line runs the init.sql script when the container is first created
+      - ./db/init:/docker-entrypoint-initdb.d
+      # This line persists the database data on your local machine
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

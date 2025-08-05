@@ -1,0 +1,11 @@
+port: 8080
+domain: localhost
+postgres:
+  user: user
+  password: password
+  db_name: tweet_db
+  host: localhost
+  port: 5432
+  max_open_connection: 10
+  max_idle_connection: 5
+
