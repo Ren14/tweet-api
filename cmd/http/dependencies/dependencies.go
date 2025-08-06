@@ -22,8 +22,8 @@ func InitDependencies(cfg config.Config) Dependencies {
 	redisRepo := redis.NewRepository(cfg)
 
 	// service layer
-	userService := user.NewService(postgresRepo)
 	timelineService := timeline.NewService(postgresRepo, redisRepo)
+	userService := user.NewService(postgresRepo, timelineService)
 
 	// handler layer
 	writerHandler := writer.NewHandler(userService)

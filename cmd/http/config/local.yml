@@ -8,4 +8,8 @@ postgres:
   port: 5432
   max_open_connection: 10
   max_idle_connection: 5
-
+redis:
+  host: localhost
+  port: 6379
+  password:
+  db:

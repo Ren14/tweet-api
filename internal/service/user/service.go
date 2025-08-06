@@ -12,13 +12,21 @@ type StorageRepo interface {
 	SelectTweetByID(ctx context.Context, tweetID string) (*domain.Tweet, error)
 }
 
-// Service depends on the interfaces, not concrete types.
-type Service struct {
-	Storage StorageRepo
+// TimelineUpdater defines the contract for updating a timeline.
+// This allows us to call the timeline service without a direct dependency.
+type TimelineUpdater interface {
+	UpdateTimeline(ctx context.Context, tweetAuthorID, tweetID string)
 }
 
-func NewService(storage StorageRepo) *Service {
+// Service depends on the interfaces, not concrete types.
+type Service struct {
+	Storage  StorageRepo
+	Timeline TimelineUpdater
+}
+
+func NewService(storage StorageRepo, timeline TimelineUpdater) *Service {
 	return &Service{
-		Storage: storage,
+		Storage:  storage,
+		Timeline: timeline,
 	}
 }

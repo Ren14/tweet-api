@@ -17,5 +17,12 @@ func (s Service) PublishTweet(ctx context.Context, tweet domain.Tweet) (domain.T
 		return *dbTweet, nil
 	}
 
-	return s.Storage.CreateTweet(ctx, tweet)
+	createTweet, err := s.Storage.CreateTweet(ctx, tweet)
+	if err != nil {
+		return domain.Tweet{}, err
+	}
+	
+	go s.Timeline.UpdateTimeline(context.Background(), tweet.UserID, tweet.ID)
+
+	return createTweet, nil
 }

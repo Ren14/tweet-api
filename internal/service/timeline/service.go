@@ -18,6 +18,7 @@ type StorageRepo interface {
 type CacheRepository interface {
 	Get(ctx context.Context, key string) (string, error)
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
+	LPush(ctx context.Context, key string, values ...interface{}) error
 }
 
 // Service depends on the interfaces, not concrete types.
