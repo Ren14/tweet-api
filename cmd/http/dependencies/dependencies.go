@@ -27,7 +27,7 @@ func InitDependencies(cfg config.Config) Dependencies {
 
 	// handler layer
 	writerHandler := writer.NewHandler(userService)
-	readerHandler := reader.NewHandler(timelineService, userService)
+	readerHandler := reader.NewHandler(timelineService)
 
 	return Dependencies{
 		WriterHandler: *writerHandler,

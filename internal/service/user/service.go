@@ -12,6 +12,7 @@ type StorageRepo interface {
 	SelectTweetByID(ctx context.Context, tweetID string) (*domain.Tweet, error)
 }
 
+// Service depends on the interfaces, not concrete types.
 type Service struct {
 	Storage StorageRepo
 }

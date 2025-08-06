@@ -2,6 +2,7 @@ package timeline
 
 import (
 	"context"
+	"time"
 
 	"github.com/renzonaitor/tweet-api/internal/domain"
 )
@@ -12,16 +13,20 @@ type StorageRepo interface {
 	SelectLastTweetsByUsersID(ctx context.Context, userIDs []string) ([]domain.Tweet, error)
 }
 
-type CacheRepo interface {
-	// todo define contract
+// CacheRepository defines the contract for a cache.
+// This allows for mocking in tests and decouples services from a specific implementation.
+type CacheRepository interface {
+	Get(ctx context.Context, key string) (string, error)
+	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
 }
 
+// Service depends on the interfaces, not concrete types.
 type Service struct {
 	Storage StorageRepo
-	Cache   CacheRepo
+	Cache   CacheRepository
 }
 
-func NewService(storage StorageRepo, cache CacheRepo) *Service {
+func NewService(storage StorageRepo, cache CacheRepository) *Service {
 	return &Service{
 		Storage: storage,
 		Cache:   cache,

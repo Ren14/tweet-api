@@ -8,6 +8,6 @@ import (
 )
 
 func SetupReadRoutes(mux *http.ServeMux, dep dependencies.Dependencies) {
-	readHandler := reader.NewHandler(dep.ReaderHandler.Timeline, dep.ReaderHandler.User)
+	readHandler := reader.NewHandler(dep.ReaderHandler.Timeline)
 	mux.HandleFunc("/api/v1/timeline", readHandler.HandleGetTimeline)
 }

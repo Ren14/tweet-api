@@ -11,6 +11,7 @@ type UserService interface {
 	PublishTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error)
 }
 
+// WriterHandler depends on the interfaces, not concrete types.
 type WriterHandler struct {
 	UserService UserService
 }

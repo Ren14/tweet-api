@@ -12,6 +12,7 @@ type Config struct {
 	Port     string   `yaml:"port"`
 	Domain   string   `yaml:"domain"`
 	Postgres Postgres `yaml:"postgres"`
+	Redis    Redis    `yaml:"redis"`
 }
 
 type Postgres struct {
@@ -22,6 +23,13 @@ type Postgres struct {
 	DBName            string `yaml:"db_name"`
 	MaxOpenConnection int    `yaml:"max_open_connection"`
 	MaxIdleConnection int    `yaml:"max_idle_connection"`
+}
+
+type Redis struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
 }
 
 func LoadConfig() Config {
