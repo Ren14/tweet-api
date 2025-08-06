@@ -9,6 +9,7 @@ import (
 type StorageRepo interface {
 	CreateRelation(ctx context.Context, follow domain.FollowUser) error
 	CreateTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error)
+	SelectTweetByID(ctx context.Context, tweetID string) (*domain.Tweet, error)
 }
 
 type Service struct {
