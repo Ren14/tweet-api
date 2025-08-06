@@ -3,6 +3,65 @@ This document outlines the system design for a scalable, read-optimized service 
 
 This is drafted following the format from a [certification](https://www.educative.io/verify-certificate/lOn30BIPYEZpJv0BrCNBx00MoOqvuM) by [course "grokking the system design interview"](https://www.educative.io/courses/grokking-the-system-design-interview) I completed in January 2025.
 
+## 0. Run API
+
+### Prerequisites
+- Docker
+- Go
+
+### How to test ?
+Run application
+1. `docker compose -u`
+2. Execute main on IDE (todo: build image and add to docker-compose)
+
+### Calling endpoints 
+
+**Follow User**
+
+*Note: X-User-ID header and follow_user_id body params should be exist on the database. Check `init.sql` to find valid IDs*
+
+```
+curl --location 'http://localhost:8080/api/v1/follow' \
+--header 'X-User-ID: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15' \
+--header 'Content-Type: application/json' \
+--data '{
+    "follow_user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13"
+}'
+```
+
+**Publish tweet**
+
+*Note: X-User-ID header should be exist on the database. Check `init.sql` to find valid IDs.*
+
+*Note 2: use https://www.uuidgenerator.net/version4 to obtains a idempotency_key valid.*
+
+```
+curl --location 'http://localhost:8080/api/v1/tweet' \
+--header 'X-User-ID: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11' \
+--header 'Content-Type: application/json' \
+--data '{
+    "text": "test redis #3",
+    "idempotency_key": "a00ffe35-fc64-45f3-be60-8c824ec0a346"
+}'
+```
+
+***Get Timeline***
+
+*Note: X-User-ID header should be exist on the database. Check `init.sql` to find valid IDs.*
+
+```
+curl --location 'http://localhost:8080/api/v1/timeline' \
+--header 'X-User-ID: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15'
+```
+
+### Test on my laptop
+<img width="1321" height="386" alt="image" src="https://github.com/user-attachments/assets/0c57ec3c-21df-4328-a5c7-67523537a3cb" />
+<img width="1329" height="805" alt="image" src="https://github.com/user-attachments/assets/86333e69-ece3-4f3d-865f-578c2e0e2842" />
+<img width="1320" height="599" alt="image" src="https://github.com/user-attachments/assets/6a56d154-07bb-4c11-b2f1-0cf07c3a7bbc" />
+
+
+
+
 ## 1. Business Logic
 
 The core of the system revolves around users following other users. Naturally, some users will have many more followers than they follow. This indicates that the system will be **read-heavy**, with a large number of users consuming tweets and a smaller percentage actively creating them. Tweets are short messages, typically up to 280 characters.
