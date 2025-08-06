@@ -11,19 +11,31 @@ import (
 const defaultPaginationLimit = 10
 
 func (h *ReaderHandler) HandleGetTimeline(w http.ResponseWriter, r *http.Request) {
-	// TODO validate HTTP method
+	if r.Method != http.MethodGet {
+		// If not, respond with a 405 Method Not Allowed error.
+		w.Header().Set("Allow", http.MethodGet) // Let the client know which method is allowed.
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return // Stop further execution.
+	}
 
 	userID := r.Header.Get("X-User-ID")
 	if userID == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Header X-User-ID is required"))
+		_, err := w.Write([]byte("Header X-User-ID is required"))
+		if err != nil {
+			return
+		}
 		return
 	}
 
 	limit, err := parseLimit(r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf("error parsing limit: %s", err)))
+		_, err = w.Write([]byte(fmt.Sprintf("error parsing limit: %s", err)))
+		if err != nil {
+			return
+		}
+		return
 	}
 
 	// nextCursor := r.URL.Query().Get("next_cursor") // TODO implement pagination
@@ -31,7 +43,10 @@ func (h *ReaderHandler) HandleGetTimeline(w http.ResponseWriter, r *http.Request
 	timeline, err := h.Timeline.GetTimeline(r.Context(), userID, limit)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("error getting timeline: %s", err)))
+		_, err = w.Write([]byte(fmt.Sprintf("error getting timeline: %s", err)))
+		if err != nil {
+			return
+		}
 		return
 	}
 
@@ -40,10 +55,16 @@ func (h *ReaderHandler) HandleGetTimeline(w http.ResponseWriter, r *http.Request
 
 	timelineResponse, err := json.Marshal(timeline)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		_, err = w.Write([]byte(err.Error()))
+		if err != nil {
+			return
+		}
 	}
 
-	w.Write(timelineResponse)
+	_, err = w.Write(timelineResponse)
+	if err != nil {
+		return
+	}
 }
 
 func parseLimit(request *http.Request) (int, error) {

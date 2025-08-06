@@ -16,25 +16,39 @@ type TweetRequest struct {
 }
 
 func (h WriterHandler) HandlePublishTweet(w http.ResponseWriter, r *http.Request) {
-	// TODO validate HTTP method
+	if r.Method != http.MethodPost {
+		// If not, respond with a 405 Method Not Allowed error.
+		w.Header().Set("Allow", http.MethodPost) // Let the client know which method is allowed.
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return // Stop further execution.
+	}
 
 	userID := r.Header.Get("X-User-ID")
 	if userID == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Header X-User-ID is required"))
+		_, err := w.Write([]byte("Header X-User-ID is required"))
+		if err != nil {
+			return
+		}
 		return
 	}
 	bytes, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf("error reading body: %s", err)))
+		_, err = w.Write([]byte(fmt.Sprintf("error reading body: %s", err)))
+		if err != nil {
+			return
+		}
 		return
 	}
 
 	var tweet TweetRequest
-	if err := json.Unmarshal(bytes, &tweet); err != nil {
+	if err = json.Unmarshal(bytes, &tweet); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf("error unmarshalling body: %s", err)))
+		_, err = w.Write([]byte(fmt.Sprintf("error unmarshalling body: %s", err)))
+		if err != nil {
+			return
+		}
 		return
 	}
 
@@ -46,7 +60,10 @@ func (h WriterHandler) HandlePublishTweet(w http.ResponseWriter, r *http.Request
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("error publishing tweet: %s", err)))
+		_, err = w.Write([]byte(fmt.Sprintf("error publishing tweet: %s", err)))
+		if err != nil {
+			return
+		}
 		return
 	}
 
@@ -55,8 +72,14 @@ func (h WriterHandler) HandlePublishTweet(w http.ResponseWriter, r *http.Request
 
 	tweetResponse, err := json.Marshal(newTweet)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		_, err = w.Write([]byte(err.Error()))
+		if err != nil {
+			return
+		}
 	}
 
-	w.Write(tweetResponse)
+	_, err = w.Write(tweetResponse)
+	if err != nil {
+		return
+	}
 }

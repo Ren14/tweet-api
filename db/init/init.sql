@@ -118,18 +118,26 @@ CREATE INDEX IF NOT EXISTS idx_follows_following_id ON follows(following_id);
 
 -- Insert some users with pre-defined UUIDs for easy reference
 INSERT INTO users (id, username)
-VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'alice'),
-       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'bob'),
-       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'charlie');
+VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'nachito'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'agus'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'diegores'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'messi'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'renzito'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', 'tinchomanik'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'maurini'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a18', 'togencio'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a19', 'tucuboss'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a20', 'semidios'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a21', 'subzero'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'tucudev'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a23', 'danielito'),
+       ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a24', 'fran');
 
 -- Insert some follow relationships
--- Alice follows Bob
 INSERT INTO follows (follower_id, following_id)
 VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12');
--- Bob follows Alice
 INSERT INTO follows (follower_id, following_id)
 VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
--- Charlie follows Alice
 INSERT INTO follows (follower_id, following_id)
 VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
 

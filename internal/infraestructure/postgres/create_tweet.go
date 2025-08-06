@@ -24,6 +24,7 @@ func (r Repository) CreateTweet(ctx context.Context, tweet domain.Tweet) (domain
 	}
 	if rows != 1 {
 		// Add Warning Log
+		return tweet, nil // TODO check this behavior
 	}
 
 	return tweet, nil
