@@ -10,8 +10,6 @@ import (
 	"github.com/renzonaitor/tweet-api/cmd/http/config"
 )
 
-// Repository holds the Redis client. The client manages a pool
-// of connections automatically.
 type Repository struct {
 	Client *redis.Client
 }
@@ -25,8 +23,8 @@ func NewRepository(cfg config.Config) *Repository {
 	// `go-redis` manages a connection pool for you.
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     addr,
-		Password: cfg.Redis.Password, // No password if empty
-		DB:       cfg.Redis.DB,       // Default DB is 0
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB, // Default DB is 0
 	})
 
 	// 3. Verify the connection is alive.

@@ -7,7 +7,6 @@ import (
 )
 
 func (s Service) PublishTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error) {
-	// validate idempotency by tweet id
 	dbTweet, err := s.Storage.SelectTweetByID(ctx, tweet.ID)
 	if err != nil {
 		return domain.Tweet{}, err
@@ -21,7 +20,9 @@ func (s Service) PublishTweet(ctx context.Context, tweet domain.Tweet) (domain.T
 	if err != nil {
 		return domain.Tweet{}, err
 	}
-	
+
+	// This goroutine is a temporary simulation of an async flow.
+	// The final implementation should leverage a message broker like AWS SQS/SNS.
 	go s.Timeline.UpdateTimeline(context.Background(), tweet.UserID, tweet.ID)
 
 	return createTweet, nil

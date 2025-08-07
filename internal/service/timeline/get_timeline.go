@@ -2,25 +2,36 @@ package timeline
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"github.com/renzonaitor/tweet-api/internal/domain"
 )
 
 func (s Service) GetTimeline(ctx context.Context, userID string, limit int) ([]domain.Tweet, error) {
-	// Get last tweets by limit using LRANGE from Redis database
-	// TODO implements get last tweets from redis
+	timelineKey := fmt.Sprintf(timelineKeyFormat, userID)
 
-	// It "hydrates" these IDs by fetching the full tweet objects from PostgreSQL
-	followers, err := s.Storage.SelectFollowersByUserID(ctx, userID)
+	tweetIDs, err := s.Cache.LRange(ctx, timelineKey, 0, int64(limit-1))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching timeline from cache: %w", err)
 	}
 
-	tweets, err := s.Storage.SelectLastTweetsByUsersID(ctx, followers)
-	if err != nil {
-		return nil, err
+	if len(tweetIDs) > 0 {
+		// TODO add metric cache hit. This response round the 4-7 ms on localhost test (using Postman)
+		log.Printf("INFO: cache hit for key: %s", timelineKey)
+
+		// "Hydrate" the tweet IDs.
+		tweets, err := s.Storage.SelectTweetsByTweetsIDs(ctx, tweetIDs)
+		if err != nil {
+			return nil, fmt.Errorf("error hydrating tweets from storage: %w", err)
+		}
+
+		// TODO add metric response ok using cache-first pattern.
+		return tweets, nil
 	}
 
-	// It returns the list of hydrated tweets and the next_cursor for pagination.
-	return tweets, nil
+	// TODO add metric cache miss. This response round the 8-10 ms on localhost test (using Postman)
+	log.Printf("WARN: cache is empty for key: %s. Getting tweets from fallback PostgreSQL", timelineKey)
+
+	return s.getTimelineFallback(ctx, userID)
 }

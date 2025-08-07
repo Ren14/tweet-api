@@ -18,7 +18,6 @@ type Repository struct {
 	db *sql.DB
 }
 
-// NewRepository creates and configures a new repository with a PostgreSQL connection.
 func NewRepository(cfg config.Config) *Repository {
 	// 1. Construct the Data Source Name (DSN) string from your config.
 	// This string contains all the necessary info to connect to the database.
@@ -53,7 +52,7 @@ func NewRepository(cfg config.Config) *Repository {
 		log.Fatalf("Failed to ping database: %v", err)
 	}
 
-	log.Println("Successfully connected to the database.")
+	log.Println("Successfully connected to the PostgresSQL database.")
 
 	// 5. Return the repository with the active connection pool.
 	return &Repository{

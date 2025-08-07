@@ -12,10 +12,9 @@ const defaultPaginationLimit = 10
 
 func (h *ReaderHandler) HandleGetTimeline(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		// If not, respond with a 405 Method Not Allowed error.
-		w.Header().Set("Allow", http.MethodGet) // Let the client know which method is allowed.
+		w.Header().Set("Allow", http.MethodGet)
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return // Stop further execution.
+		return
 	}
 
 	userID := r.Header.Get("X-User-ID")

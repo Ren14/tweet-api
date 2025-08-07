@@ -12,12 +12,11 @@ func (r Repository) SelectTweetsByTweetsIDs(ctx context.Context, tweetIDs []stri
 		return []domain.Tweet{}, nil
 	}
 
-	// The SQL query using the PostgreSQL `= ANY($1)` operator.
-	// This is the most efficient and secure way to handle "IN" clauses with a variable number of arguments.
 	query := `
 		SELECT id, user_id, content, created_at
 		FROM tweets
 		WHERE id = ANY($1)
+		ORDER BY created_at DESC
 	`
 
 	// QueryContext is used because we expect multiple rows in the result.

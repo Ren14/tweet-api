@@ -9,5 +9,6 @@ import (
 
 func SetupReadRoutes(mux *http.ServeMux, dep dependencies.Dependencies) {
 	readHandler := reader.NewHandler(dep.ReaderHandler.Timeline)
+	mux.HandleFunc("/ping", readHandler.Ping)
 	mux.HandleFunc("/api/v1/timeline", readHandler.HandleGetTimeline)
 }

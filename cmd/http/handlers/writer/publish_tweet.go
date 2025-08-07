@@ -21,10 +21,9 @@ type TweetRequest struct {
 
 func (h WriterHandler) HandlePublishTweet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		// If not, respond with a 405 Method Not Allowed error.
-		w.Header().Set("Allow", http.MethodPost) // Let the client know which method is allowed.
+		w.Header().Set("Allow", http.MethodPost)
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return // Stop further execution.
+		return
 	}
 
 	userID := r.Header.Get("X-User-ID")
@@ -75,6 +74,7 @@ func (h WriterHandler) HandlePublishTweet(w http.ResponseWriter, r *http.Request
 		UserID:    userID,
 		CreatedAt: time.Now().Format(time.RFC3339),
 	})
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err = w.Write([]byte(fmt.Sprintf("error publishing tweet: %s", err)))

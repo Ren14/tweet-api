@@ -27,17 +27,23 @@ func (s Service) UpdateTimeline(ctx context.Context, tweetAuthorID, tweetID stri
 		return
 	}
 
-	log.Printf("INFO: Starting timeline fan-out for tweet %s to %d followers of user %s", tweetID, len(followers), tweetAuthorID)
+	// TODO add span with followers_count trace, for check performance
 
-	// TODO add span trace for check performance
-
-	// TODO avoid this logic if the user has too many followers. In this case, another approach is needed.
+	// TODO [spike] add log if user has more than 10.000 followers.
+	// avoid next logic if the user has too many followers. In this case, another approach is needed.
+	// [spike] learn to celebrity user problem / pattern and how apply it.
 
 	// 2. For each follower, push the new tweet ID to their timeline list in Redis.
 	var updatedCount int
 	for _, followerID := range followers {
+		// TODO [spike] parallelize each follower-UpdateTimeline with go-routines. Use waitGroup to await finish results.
+
 		// Construct the unique Redis key for this follower's timeline.
 		timelineKey := fmt.Sprintf(timelineKeyFormat, followerID)
+
+		// TODO [technical debt] firs check if timelineKey exist into Redis. If not exist, create with a TTL.
+		// If exist, continue with LPush
+		// NOTE: // With this implementation, each register on cache is alive for ever.
 
 		// LPUSH adds the new tweet ID to the beginning of the list.
 		if err := s.Cache.LPush(ctx, timelineKey, tweetID); err != nil {
@@ -45,8 +51,13 @@ func (s Service) UpdateTimeline(ctx context.Context, tweetAuthorID, tweetID stri
 			log.Printf("ERROR: Failed to push tweet %s to timeline for follower %s: %v", tweetID, followerID, err)
 			continue
 		}
+		log.Printf("INFO: add timeline fan-out on cache for tweetID: %s followerID: %s tweetAuthorID: %s", tweetID, followerID, tweetAuthorID)
 		updatedCount++
+
+		// TODO [technical debt] evaluate the value of elements for the followerID. If is more than maxTweetsCached, trim for avoid
+		// bigger cache. This method should be execute with async process.
 	}
 
 	log.Printf("INFO: Finished timeline fan-out. Successfully updated %d of %d follower timelines.", updatedCount, len(followers))
+	// TODO add metric if updated is distinct to len(followers). Then see logs for troubleshooting
 }

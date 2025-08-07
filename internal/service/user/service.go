@@ -12,8 +12,6 @@ type StorageRepo interface {
 	SelectTweetByID(ctx context.Context, tweetID string) (*domain.Tweet, error)
 }
 
-// TimelineUpdater defines the contract for updating a timeline.
-// This allows us to call the timeline service without a direct dependency.
 type TimelineUpdater interface {
 	UpdateTimeline(ctx context.Context, tweetAuthorID, tweetID string)
 }
