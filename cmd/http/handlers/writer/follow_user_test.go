@@ -20,6 +20,9 @@ const (
 	userToFollow = "a00ffe35-fc64-45f3-be60-8c824ec0a353"
 )
 
+var validRequest = httptest.NewRequest(http.MethodPost, "/api/v1/follow",
+	strings.NewReader(`{"follow_user_id": "`+userToFollow+`"}`))
+
 // TestHandleFollowUser uses a table-driven approach with gomock.
 func TestHandleFollowUser(t *testing.T) {
 	testCases := []struct {
@@ -31,11 +34,8 @@ func TestHandleFollowUser(t *testing.T) {
 		expectedBodyContains string
 	}{
 		{
-			name: "Success - 204 No Content",
-			request: httptest.NewRequest(
-				http.MethodPost,
-				"/api/v1/follow",
-				strings.NewReader(`{"follow_user_id": "`+userToFollow+`"}`)),
+			name:    "Success - 204 No Content",
+			request: validRequest,
 			setupRequest: func(req *http.Request) {
 				req.Header.Set("X-User-ID", xUserID)
 				req.Header.Set("Content-Type", "application/json")
@@ -68,14 +68,9 @@ func TestHandleFollowUser(t *testing.T) {
 			expectedBodyContains: "Header X-User-ID is required",
 		},
 		{
-			name: "Failure - 400 Bad Request for error reading body",
-			request: httptest.NewRequest(
-				http.MethodPost,
-				"/api/v1/follow",
-				strings.NewReader(`{"follow_user_id":`)),
-			setupRequest: func(req *http.Request) {
-				req.Header.Set("X-User-ID", xUserID)
-			},
+			name:                 "Failure - 400 Bad Request for error reading body",
+			request:              validRequest,
+			setupRequest:         func(req *http.Request) { req.Header.Set("X-User-ID", xUserID) },
 			setupMock:            func(mock *mocks.MockUserService) {},
 			expectedStatus:       http.StatusBadRequest,
 			expectedBodyContains: "error unmarshalling body: unexpected end of JSON input",
