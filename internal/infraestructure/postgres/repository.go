@@ -18,7 +18,7 @@ type Repository struct {
 	db *sql.DB
 }
 
-func NewRepository(cfg config.Config) *Repository {
+func NewRepository(cfg config.Config) (*Repository, error) {
 	// 1. Construct the Data Source Name (DSN) string from your config.
 	// This string contains all the necessary info to connect to the database.
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
@@ -34,7 +34,7 @@ func NewRepository(cfg config.Config) *Repository {
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		// If this fails, the application can't start, so we panic.
-		log.Fatalf("Failed to open database connection: %v", err)
+		return nil, fmt.Errorf("failed to connect to Postgres: %w", err)
 	}
 
 	// 3. Configure the connection pool.
@@ -49,7 +49,9 @@ func NewRepository(cfg config.Config) *Repository {
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
-		log.Fatalf("Failed to ping database: %v", err)
+		// If ping fails, close the pool and return the error.
+		_ = db.Close() // TODO [tech-debt] handle error
+		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
 	log.Println("Successfully connected to the PostgresSQL database.")
@@ -57,7 +59,7 @@ func NewRepository(cfg config.Config) *Repository {
 	// 5. Return the repository with the active connection pool.
 	return &Repository{
 		db: db,
-	}
+	}, nil
 }
 
 // Close gracefully closes the database connection pool.
@@ -65,4 +67,32 @@ func (r *Repository) Close() {
 	if err := r.db.Close(); err != nil {
 		log.Printf("Error closing the database: %v", err)
 	}
+}
+
+// NewRepositoryWithDB is a helper constructor that takes an existing *sql.DB.
+// This makes it easy to "inject" a mock database during tests.
+func NewRepositoryWithDB(db *sql.DB, cfg config.Config) (*Repository, error) {
+	// 1. Configure the connection pool.
+	db.SetMaxOpenConns(cfg.Postgres.MaxOpenConnection)
+	db.SetMaxIdleConns(cfg.Postgres.MaxIdleConnection)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
+	// 2. Verify the connection is alive.
+	// `db.PingContext` is crucial to ensure the database is reachable.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := db.PingContext(ctx); err != nil {
+		// If ping fails, close the pool and return the error.
+		// This properly handles the TODO from your original file.
+		_ = db.Close()
+		return nil, fmt.Errorf("failed to ping database: %w", err)
+	}
+
+	log.Println("Successfully connected to the PostgresSQL database.")
+
+	// 3. Return the repository with the active connection pool.
+	return &Repository{
+		db: db,
+	}, nil
 }

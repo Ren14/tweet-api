@@ -7,13 +7,13 @@ import (
 )
 
 func (s Service) PublishTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error) {
-	dbTweet, err := s.Storage.SelectTweetByID(ctx, tweet.ID)
+	existTweet, err := s.Storage.SelectTweetByID(ctx, tweet.ID)
 	if err != nil {
 		return domain.Tweet{}, err
 	}
 
-	if dbTweet != nil {
-		return *dbTweet, nil
+	if existTweet != nil {
+		return *existTweet, nil
 	}
 
 	createTweet, err := s.Storage.CreateTweet(ctx, tweet)

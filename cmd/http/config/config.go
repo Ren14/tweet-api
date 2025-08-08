@@ -51,5 +51,6 @@ func LoadConfig() Config {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// TODO [tech-debt] get user and password from env variables
 	return config
 }

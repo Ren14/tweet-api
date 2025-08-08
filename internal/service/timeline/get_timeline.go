@@ -27,6 +27,7 @@ func (s Service) GetTimeline(ctx context.Context, userID string, limit int) ([]d
 		}
 
 		// TODO add metric response ok using cache-first pattern.
+		log.Printf("INFO: Hydrated [%d] tweets from cache", len(tweetIDs))
 		return tweets, nil
 	}
 

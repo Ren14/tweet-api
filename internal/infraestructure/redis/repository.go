@@ -15,7 +15,7 @@ type Repository struct {
 }
 
 // NewRepository creates and configures a new repository with a Redis connection.
-func NewRepository(cfg config.Config) *Repository {
+func NewRepository(cfg config.Config) (*Repository, error) {
 	// 1. Construct the connection address from your config.
 	addr := fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port)
 
@@ -34,9 +34,7 @@ func NewRepository(cfg config.Config) *Repository {
 	defer cancel()
 
 	if err := rdb.Ping(ctx).Err(); err != nil {
-		// If Redis is not available, the application can't function as expected.
-		// It's better to fail fast.
-		log.Fatalf("Failed to connect to Redis: %v", err)
+		return nil, fmt.Errorf("failed to connect to Redis: %w", err)
 	}
 
 	log.Println("Successfully connected to Redis.")
@@ -44,7 +42,7 @@ func NewRepository(cfg config.Config) *Repository {
 	// 4. Return the repository with the active client.
 	return &Repository{
 		Client: rdb,
-	}
+	}, nil
 }
 
 // Close gracefully closes the Redis client and its connection pool.

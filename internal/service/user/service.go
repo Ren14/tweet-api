@@ -6,6 +6,7 @@ import (
 	"github.com/renzonaitor/tweet-api/internal/domain"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/user_mocks.go -package=mocks
 type StorageRepo interface {
 	CreateRelation(ctx context.Context, follow domain.FollowUser) error
 	CreateTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error)

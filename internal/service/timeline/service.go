@@ -7,14 +7,14 @@ import (
 	"github.com/renzonaitor/tweet-api/internal/domain"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/timeline_mocks.go -package=mocks
+
 type StorageRepo interface {
 	SelectFollowersByUserID(ctx context.Context, userID string) ([]string, error)
 	SelectTweetsByTweetsIDs(ctx context.Context, tweetIDs []string) ([]domain.Tweet, error)
 	SelectLastTweetsByUsersID(ctx context.Context, userIDs []string) ([]domain.Tweet, error)
 }
 
-// CacheRepository defines the contract for a cache.
-// This allows for mocking in tests and decouples services from a specific implementation.
 type CacheRepository interface {
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
 	LPush(ctx context.Context, key string, values ...interface{}) error
