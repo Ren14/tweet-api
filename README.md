@@ -12,7 +12,8 @@ This is drafted following the format from a [certification](https://www.educativ
 ### How to test ?
 Run application
 1. `docker compose -u`
-2. Execute main on IDE (todo: build image and add to docker-compose)
+2. `go mod tidy`
+3. Execute main on IDE (todo: build image and add to docker-compose)
 
 ### Calling endpoints 
 
