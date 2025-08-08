@@ -49,6 +49,15 @@ func (h *WriterHandler) HandleFollowUser(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	if userID == follow.FollowUserID {
+		w.WriteHeader(http.StatusBadRequest)
+		_, err = w.Write([]byte("user cannot follow themselves"))
+		if err != nil {
+			return
+		}
+		return
+	}
+
 	err = h.UserService.FollowUser(r.Context(), domain.FollowUser{
 		FollowID:   userID,
 		FollowedID: follow.FollowUserID,
@@ -63,5 +72,5 @@ func (h *WriterHandler) HandleFollowUser(w http.ResponseWriter, r *http.Request)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
